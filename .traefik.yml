@@ -1,0 +1,7 @@
+displayName: JWT Validation Middleware
+type: middleware
+import: github.com/legege/jwt-validation-middleware
+summary: 'Verify JWT Token in Auth header, Cookie or Query param, and injects decoded payload in header'
+
+testData:
+  secret: ThisIsMyVerySecret
