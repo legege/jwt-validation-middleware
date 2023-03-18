@@ -8,7 +8,7 @@ Start with command
 ```yaml
 command:
   - "--experimental.plugins.jwt-validation-middleware.modulename=github.com/legege/jwt-validation-middleware"
-  - "--experimental.plugins.jwt-validation-middleware.version=v0.1.0"
+  - "--experimental.plugins.jwt-validation-middleware.version=v0.1.1"
 ```
 
 Activate plugin in your config  
