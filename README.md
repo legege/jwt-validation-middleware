@@ -7,8 +7,8 @@ JWT Validation Middleware is a middleware plugin for [Traefik](https://github.co
 Start with command
 ```yaml
 command:
-  - "--experimental.plugins.jwt-middleware.modulename=github.com/legege/jwt-middleware"
-  - "--experimental.plugins.jwt-middleware.version=v0.1.0"
+  - "--experimental.plugins.jwt-validation-middleware.modulename=github.com/legege/jwt-validation-middleware"
+  - "--experimental.plugins.jwt-validation-middleware.version=v0.1.0"
 ```
 
 Activate plugin in your config  
@@ -18,8 +18,8 @@ http:
   middlewares:
     my-jwt-middleware:
       plugin:
-        jwt-middleware:
-          secret: SECRET
+        jwt-validation-middleware:
+          secret: ThisIsMyVerySecret
           payloadHeader: X-Jwt-Payload
           authQueryParam: authToken
           authCookieName: authToken
@@ -31,4 +31,19 @@ Use as docker-compose label
         - "traefik.http.routers.my-service.middlewares=my-jwt-middleware@file"
 ```
 
+## Initial release
+
 Forked from https://github.com/23deg/jwt-middleware
+
+## Local testing
+
+```
+docker-compose -f docker-compose.test.yml up
+```
+
+```
+JWT_TOKEN=...
+curl -H "Host: test.host.local" "http://localhost:80/?authToken=$JWT_TOKEN" -i
+curl -H "Host: test.host.local" --cookie "authToken=$JWT_TOKEN" "http://localhost:80/" -i
+curl -H "Host: test.host.local" -H "Authorization: Bearer $JWT_TOKEN" "http://localhost:80/" -i
+```

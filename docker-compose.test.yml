@@ -1,0 +1,44 @@
+version: "3.3"
+
+networks:
+  traefik-proxy:
+
+volumes:
+  traefik-proxy:
+
+services:
+  traefik-proxy:
+    image: traefik:v2.9
+    restart: unless-stopped
+    networks:
+    - traefik-proxy
+    security_opt:
+    - no-new-privileges:true
+    command:
+    - "--log.level=DEBUG"
+    - "--providers.docker=true"
+    - "--providers.docker.exposedbydefault=false"
+    - "--providers.docker.network=traefik-proxy"
+    - "--entrypoints.web.address=:80"
+    - "--entrypoints.traefik.address=:9000"
+    - "--api.dashboard=true"
+    - "--api.insecure=true"
+    - "--experimental.localPlugins.jwt-validation-middleware.moduleName=github.com/legege/jwt-validation-middleware"
+    ports:
+    - "80:80"
+    - "127.0.0.1:9000:9000"
+    volumes:
+    - "traefik-proxy:/data"
+    - ".:/plugins-local/src/github.com/legege/jwt-validation-middleware/"
+    - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  whoami:
+    image: traefik/whoami
+    networks:
+      - traefik-proxy
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`test.host.local`)"
+      - "traefik.http.routers.whoami.middlewares=test-jwt"
+      - "traefik.http.middlewares.test-jwt.plugin.jwt-validation-middleware.secret=ThisIsMyVerySecret"
