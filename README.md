@@ -8,7 +8,7 @@ Start with command
 ```yaml
 command:
   - "--experimental.plugins.jwt-validation-middleware.modulename=github.com/legege/jwt-validation-middleware"
-  - "--experimental.plugins.jwt-validation-middleware.version=v0.2.0"
+  - "--experimental.plugins.jwt-validation-middleware.version=v0.2.1"
 ```
 
 Activate plugin in your config  
@@ -26,6 +26,7 @@ http:
             X-Custom-Header2: name
           authQueryParam: authToken
           authCookieName: authToken
+          forwardAuth: false
 ```
 
 Use as docker-compose label  

@@ -21,6 +21,7 @@ type Config struct {
 	PayloadHeaders map[string]string `json:"payloadHeaders,omitempty"`
 	AuthQueryParam string            `json:"authQueryParam,omitempty"`
 	AuthCookieName string            `json:"authCookieName,omitempty"`
+	ForwardAuth    bool              `json:"forwardAuth,omitempty"`
 }
 
 func CreateConfig() *Config {
@@ -29,6 +30,7 @@ func CreateConfig() *Config {
 		Optional:       false,
 		AuthQueryParam: "authToken",
 		AuthCookieName: "authToken",
+		ForwardAuth:    false,
 	}
 }
 
@@ -40,6 +42,7 @@ type JWT struct {
 	payloadHeaders map[string]string
 	authQueryParam string
 	authCookieName string
+	forwardAuth    bool
 }
 
 type Token struct {
@@ -57,6 +60,7 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 		payloadHeaders: config.PayloadHeaders,
 		authQueryParam: config.AuthQueryParam,
 		authCookieName: config.AuthCookieName,
+		forwardAuth:    config.ForwardAuth,
 	}, nil
 }
 
@@ -159,12 +163,28 @@ func (j *JWT) extractTokenFromCookie(request *http.Request) string {
 	if err != nil {
 		return ""
 	}
+	if !j.forwardAuth {
+		cookies := request.Cookies()
+		request.Header.Del("Cookie")
+		for _, c := range cookies {
+			if c.Name != j.authCookieName {
+				request.AddCookie(c)
+			}
+		}
+	}
 	return cookie.Value
 }
 
 func (j *JWT) extractTokenFromQuery(request *http.Request) string {
 	if request.URL.Query().Has(j.authQueryParam) {
-		return request.URL.Query().Get(j.authQueryParam)
+		token := request.URL.Query().Get(j.authQueryParam)
+		if !j.forwardAuth {
+			qry := request.URL.Query()
+			qry.Del(j.authQueryParam)
+			request.URL.RawQuery = qry.Encode()
+			request.RequestURI = request.URL.RequestURI()
+		}
+		return token
 	}
 	return ""
 }
@@ -177,6 +197,10 @@ func (j *JWT) extractTokenFromHeader(request *http.Request) string {
 	auth := authHeader[0]
 	if !strings.HasPrefix(auth, "Bearer ") {
 		return ""
+	}
+
+	if !j.forwardAuth {
+		request.Header.Del("Authorization")
 	}
 	return auth[7:]
 }
