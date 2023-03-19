@@ -20,6 +20,7 @@ http:
       plugin:
         jwt-validation-middleware:
           secret: ThisIsMyVerySecret
+          optional: true
           payloadHeaders:
             X-Custom-Header1: sub
             X-Custom-Header2: name
