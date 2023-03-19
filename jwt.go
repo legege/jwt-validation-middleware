@@ -95,7 +95,6 @@ func (j *JWT) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 		// Inject header as proxypayload or configured name
 		req.Header.Add(j.payloadHeader, payload)
-		fmt.Println(req.Header)
 		j.next.ServeHTTP(res, req)
 	} else {
 		http.Error(res, "Not allowed", http.StatusUnauthorized)
