@@ -42,3 +42,7 @@ services:
       - "traefik.http.routers.whoami.rule=Host(`test.host.local`)"
       - "traefik.http.routers.whoami.middlewares=test-jwt"
       - "traefik.http.middlewares.test-jwt.plugin.jwt-validation-middleware.secret=ThisIsMyVerySecret"
+      - "traefik.http.middlewares.test-jwt.plugin.jwt-validation-middleware.optional=true"
+      - "traefik.http.middlewares.test-jwt.plugin.jwt-validation-middleware.payloadHeaders.x-custom-header1=sub"
+      - "traefik.http.middlewares.test-jwt.plugin.jwt-validation-middleware.payloadHeaders.x-custom-header2=name"
+      - "traefik.http.middlewares.test-jwt.plugin.jwt-validation-middleware.payloadHeaders.x-custom-header3=unknown"
